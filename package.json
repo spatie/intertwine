@@ -9,6 +9,7 @@
     "@sindresorhus/slugify": "^1.0.0",
     "gray-matter": "^4.0.2",
     "markdown-it": "^11.0.0",
+    "recursive-copy": "^2.0.10",
     "rimraf": "^3.0.2"
   }
 }

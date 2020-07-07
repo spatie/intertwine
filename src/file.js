@@ -1,10 +1,15 @@
 const fs = require("fs").promises;
 const path = require("path");
 const rimraf = require("rimraf");
+const recursiveCopy = require("recursive-copy");
 
 async function clean(directory) {
   await new Promise((resolve) => rimraf(directory, resolve));
   await fs.mkdir(directory);
+}
+
+async function copy(source, destination) {
+  await recursiveCopy(source, destination);
 }
 
 async function find(directory = ".") {
@@ -41,5 +46,6 @@ function write(files, outDir) {
 }
 
 module.exports.clean = clean;
+module.exports.copy = copy;
 module.exports.find = find;
 module.exports.write = write;

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { clean, find, write } = require("./file");
+const { clean, copy, find, write } = require("./file");
 const { parse } = require("./parse");
 const { render } = require("./render");
 
@@ -16,4 +16,6 @@ const { render } = require("./render");
     })),
     "./public"
   );
+
+  await copy("./assets", "./public/assets");
 })();
