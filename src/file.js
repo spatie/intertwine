@@ -3,13 +3,8 @@ const path = require("path");
 const rimraf = require("rimraf");
 const recursiveCopy = require("recursive-copy");
 
-async function clean(directory) {
-  await new Promise((resolve) => rimraf(directory, resolve));
-  await fs.mkdir(directory);
-}
-
 async function copy(source, destination) {
-  await recursiveCopy(source, destination);
+  await recursiveCopy(source, destination, { overwrite: true });
 }
 
 async function find(directory = ".") {
@@ -37,15 +32,35 @@ async function find(directory = ".") {
   return Array.prototype.concat(...paths);
 }
 
+async function freshDir(directory) {
+  await new Promise((resolve) => rimraf(directory, resolve));
+
+  await fs.mkdir(directory);
+}
+
 function write(files, outDir) {
   return Promise.all(
-    files.map((file) => {
-      return fs.writeFile(`${outDir}/${file.filename}`, file.contents);
+    files.map(async (file) => {
+      const filePath = `${outDir}/${file.filename}`;
+
+      await ensureDirectoryExists(filePath);
+
+      return fs.writeFile(filePath, file.contents);
     })
   );
 }
 
-module.exports.clean = clean;
+async function ensureDirectoryExists(filePath) {
+  const dirname = path.dirname(filePath);
+
+  return fs.stat(dirname).catch(() => {
+    ensureDirectoryExists(dirname);
+
+    return fs.mkdir(dirname);
+  });
+}
+
 module.exports.copy = copy;
 module.exports.find = find;
+module.exports.freshDir = freshDir;
 module.exports.write = write;
