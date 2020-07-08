@@ -1,54 +1,17 @@
+const path = require("path");
 const { slug } = require("./parse");
 const markdownIt = require("markdown-it")({ html: true });
+const nunjucks = require("nunjucks");
 
-const render = (page) => `
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${page.title}</title>
-    <link rel="stylesheet" href="/assets/theme.css">
-  </head>
-  <body>
-    <main>
-      <h1>${page.title}</h1>
-      ${markdown(page.content)}
-      ${
-        page.references.length
-          ? `
-              <section class="references">
-                <h2>
-                  ${page.references.length}
-                  Linked
-                  ${page.references.length === 1 ? "Reference" : "References"}
-                </h2>
-                <ul>
-                  ${page.references
-                    .map(
-                      (reference) => `
-                        <li>
-                          <a href="/${
-                            reference.slug === "index" ? "" : reference.slug
-                          }">
-                            ${reference.title}
-                          </a>
-                          <ul>
-                            <li>${markdown(reference.content)}</li>
-                          </ul>
-                        </li>
-                      `
-                    )
-                    .join("")}
-                </ul>
-              </section>
-            `
-          : ""
-      }
-    </main>
-  </body>
-</html>
-`;
+const renderer = new nunjucks.Environment(
+  new nunjucks.FileSystemLoader(["views", path.resolve(__dirname, "../views")])
+);
+
+renderer.addFilter("markdown", markdown);
+
+function render(page) {
+  return renderer.render("page.html", page);
+}
 
 function markdown(input) {
   input = input.replace(/\[\[([^\]]+)\]\]/g, (_, contents) => {

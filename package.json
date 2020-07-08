@@ -12,6 +12,7 @@
     "gray-matter": "^4.0.2",
     "lodash": "^4.17.17",
     "markdown-it": "^11.0.0",
+    "nunjucks": "^3.2.1",
     "recursive-copy": "^2.0.10",
     "rimraf": "^3.0.2"
   }

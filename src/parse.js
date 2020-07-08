@@ -39,6 +39,7 @@ function parse(files) {
       }).references.push({
         title: page.title,
         slug: page.slug,
+        url: page.slug === "index" ? "/" : `/${page.slug}`,
         content: reference.content,
       });
     });

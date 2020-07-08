@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    {% include "head.html" %}
+  </head>
+  <body>
+    <main>
+      <h1>{{ title }}</h1>
+      {{ content | markdown }}
+      {% if references.length %}
+        <section class="references">
+          <h2>
+            {% if references.length === 1 %}
+              1 Linked Reference
+            {% else %}
+              {{ references.length }} Linked References
+            {% endif %}
+          </h2>
+          <ul>
+            {% for reference in references %}
+              <li>
+                <a href="{{ reference.url }}">
+                  {{ reference.title }}
+                </a>
+                <ul>
+                  <li>{{ reference.content | markdown }}</li>
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+    </main>
+  </body>
+</html>
