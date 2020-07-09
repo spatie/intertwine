@@ -15,7 +15,9 @@ function parse(files) {
     page = {
       title: slug,
       content: "",
+      pin: false,
       slug,
+      url: slug === "index" ? "/" : `/${slug}`,
       references: [],
       ...attributes,
     };
@@ -32,6 +34,7 @@ function parse(files) {
 
     page.title = data.title || filename;
     page.content = content;
+    page.pin = data.pin || false;
 
     extractReferences(content).forEach((reference) => {
       findOrCreatePage(reference.slug, {

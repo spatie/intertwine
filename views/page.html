@@ -3,36 +3,54 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
+    <title>{{ page.title }}</title>
     {% include "head.html" %}
   </head>
   <body>
-    <main>
-      <h1>{{ title }}</h1>
-      {{ content | markdown }}
-      {% if references.length %}
-        <section class="references">
-          <h2>
-            {% if references.length === 1 %}
-              1 Linked Reference
-            {% else %}
-              {{ references.length }} Linked References
-            {% endif %}
-          </h2>
-          <ul>
-            {% for reference in references %}
-              <li>
-                <a href="{{ reference.url }}">
-                  {{ reference.title }}
-                </a>
-                <ul>
-                  <li>{{ reference.content | markdown }}</li>
-                </ul>
-              </li>
-            {% endfor %}
-          </ul>
-        </section>
-      {% endif %}
-    </main>
+    <nav class="sidebar">
+      <h1>
+        <a href="/">
+          Intertwine
+        </a>
+      </h1>
+      <ul>
+        {% for page in sidebar %}
+          <li>
+            <a href="{{ page.url }}">
+              {{ page.title }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+    <div class="page-wrapper">
+      <main class="page">
+        <h1>{{ page.title }}</h1>
+        {{ page.content | markdown | safe }}
+        {% if page.references.length %}
+          <section class="references">
+            <h2>
+              {% if page.references.length === 1 %}
+                1 Linked Reference
+              {% else %}
+                {{ page.references.length }} Linked References
+              {% endif %}
+            </h2>
+            <ul>
+              {% for reference in page.references %}
+                <li>
+                  <a href="{{ reference.url }}">
+                    {{ reference.title }}
+                  </a>
+                  <ul>
+                    <li>{{ reference.content | markdown | safe }}</li>
+                  </ul>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+      </main>
+    </div>
   </body>
 </html>

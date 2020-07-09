@@ -81,7 +81,7 @@ async function pages() {
     pages.map((page) => ({
       filename:
         page.slug === "index" ? "index.html" : `${page.slug}/index.html`,
-      contents: render(page),
+      contents: render(page, pages),
     })),
     "./public"
   );

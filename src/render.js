@@ -9,13 +9,15 @@ const renderer = new nunjucks.Environment(
 
 renderer.addFilter("markdown", markdown);
 
-function render(page) {
-  return renderer.render("page.html", page);
+function render(page, pages) {
+  const sidebar = pages.filter((page) => page.pin);
+
+  return renderer.render("page.html", { page, pages, sidebar });
 }
 
 function markdown(input) {
   input = input.replace(/\[\[([^\]]+)\]\]/g, (_, contents) => {
-    return `<a href="/${slug(contents)}">${contents}</a>`;
+    return `<a href="/${slug(contents)}" class="reference">${contents}</a>`;
   });
 
   return markdownIt.render(input);
