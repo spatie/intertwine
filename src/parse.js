@@ -20,9 +20,10 @@ function parse(files) {
     page = {
       title: slug,
       content: "",
-      pin: false,
       slug,
       url: slug === "index" ? "/" : `/${slug}`,
+      pin: false,
+      weight: null,
       aliases: [],
       references: [],
       ...attributes,
@@ -41,6 +42,7 @@ function parse(files) {
         title: data.title || filename,
         content: content,
         pin: data.pin || false,
+        weight: data.weight || null,
         aliases: data.alias !== undefined ? arrayWrap(data.alias) : [],
       });
     })
