@@ -4,7 +4,10 @@ const markdownIt = require("markdown-it")({ html: true });
 const nunjucks = require("nunjucks");
 
 const renderer = new nunjucks.Environment(
-  new nunjucks.FileSystemLoader(["views", path.resolve(__dirname, "../views")])
+  new nunjucks.FileSystemLoader([
+    "templates",
+    path.resolve(__dirname, "../templates"),
+  ])
 );
 
 renderer.addFilter("markdown", markdown);
