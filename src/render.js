@@ -21,7 +21,10 @@ function render(page, pages) {
     ["weight", "title"]
   );
 
-  return renderer.render("page.html", { page, pages, title, sidebar });
+  return renderer.render("page.html", {
+    page,
+    site: { pages, sidebar, title },
+  });
 }
 
 function markdown(input) {

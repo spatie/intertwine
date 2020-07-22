@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }} | {{ title }}</title>
+    <title>{{ page.title }} | {{ site.title }}</title>
     {% include "head.html" %}
   </head>
   <body>
@@ -14,7 +14,7 @@
         </a>
       </h1>
       <ul>
-        {% for page in sidebar %}
+        {% for page in site.sidebar %}
           <li>
             <a href="{{ page.url }}">
               {{ page.title }}
