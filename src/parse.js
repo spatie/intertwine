@@ -1,14 +1,19 @@
 const matter = require("gray-matter");
 const markdownIt = require("markdown-it")();
 const slugify = require("@sindresorhus/slugify");
+const { arrayWrap } = require("./util");
 
 function parse(files) {
   const pages = [];
 
-  function findOrCreatePage(slug, attributes) {
-    let page = pages.find((page) => page.slug === slug);
+  function updateOrCreatePage(slug, attributes) {
+    let page = pages.find((page) => {
+      return page.slug === slug || page.aliases.includes(slug);
+    });
 
     if (page) {
+      Object.assign(page, attributes);
+
       return page;
     }
 
@@ -18,6 +23,7 @@ function parse(files) {
       pin: false,
       slug,
       url: slug === "index" ? "/" : `/${slug}`,
+      aliases: [],
       references: [],
       ...attributes,
     };
@@ -27,26 +33,29 @@ function parse(files) {
     return page;
   }
 
-  files.forEach(({ filename, contents }) => {
-    const { content, data } = matter(contents);
+  files
+    .map(({ filename, contents }) => {
+      const { content, data } = matter(contents);
 
-    const page = findOrCreatePage(filename);
-
-    page.title = data.title || filename;
-    page.content = content;
-    page.pin = data.pin || false;
-
-    extractReferences(content).forEach((reference) => {
-      findOrCreatePage(reference.slug, {
-        title: reference.title,
-      }).references.push({
-        title: page.title,
-        slug: page.slug,
-        url: page.slug === "index" ? "/" : `/${page.slug}`,
-        content: reference.content,
+      return updateOrCreatePage(filename, {
+        title: data.title || filename,
+        content: content,
+        pin: data.pin || false,
+        aliases: data.alias !== undefined ? arrayWrap(data.alias) : [],
+      });
+    })
+    .forEach((page) => {
+      extractReferences(page.content).forEach((reference) => {
+        updateOrCreatePage(reference.slug, {
+          title: reference.title,
+        }).references.push({
+          title: page.title,
+          slug: page.slug,
+          url: page.slug === "index" ? "/" : `/${page.slug}`,
+          content: reference.content,
+        });
       });
     });
-  });
 
   return pages;
 }
