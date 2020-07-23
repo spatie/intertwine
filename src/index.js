@@ -1,32 +1,24 @@
 #!/usr/bin/env node
 
-const { freshDir, copy, find, write } = require("./file");
-const { parse } = require("./parse");
-const { render } = require("./render");
-const { debounce } = require("lodash");
+const { debounce } = require("./util");
+const { build, buildAssets, buildPages } = require("./build");
 
 (function () {
   switch (process.argv[2]) {
+    case "build":
+    case undefined:
+      build();
+      break;
     case "serve":
       serve();
       break;
     case "watch":
       watch();
       break;
-    case "build":
-    case undefined:
-      build();
-      break;
     default:
       console.error(`Unknown command: ${process.argv[2]}`);
   }
 })();
-
-async function build() {
-  await clean();
-
-  await Promise.all([pages(), assets()]);
-}
 
 async function watch() {
   await build();
@@ -36,7 +28,7 @@ async function watch() {
   chokidar.watch("./pages").on(
     "all",
     debounce(async () => {
-      await pages();
+      await buildPages();
       console.log("Updated pages");
     }, 100)
   );
@@ -44,7 +36,7 @@ async function watch() {
   chokidar.watch("./assets").on(
     "all",
     debounce(async () => {
-      await assets();
+      await buildAssets();
       console.log("Updated assets");
     }, 100)
   );
@@ -68,25 +60,4 @@ async function serve() {
     notify: false,
     index: "index.html",
   });
-}
-
-function clean() {
-  return freshDir("./public");
-}
-
-async function pages() {
-  const pages = parse(await find("./pages"));
-
-  return write(
-    pages.map((page) => ({
-      filename:
-        page.slug === "index" ? "index.html" : `${page.slug}/index.html`,
-      contents: render(page, pages),
-    })),
-    "./public"
-  );
-}
-
-function assets() {
-  return copy("./assets", "./public/assets");
 }

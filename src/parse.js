@@ -1,12 +1,10 @@
 const matter = require("gray-matter");
-const markdownIt = require("markdown-it")();
-const slugify = require("@sindresorhus/slugify");
-const { arrayWrap } = require("./util");
+const { arrayWrap, extractMarkdownBlocks, toSlug, toUrl } = require("./util");
 
-function parse(files) {
+function parse(rawPages) {
   const pages = [];
 
-  function updateOrCreatePage(slug, attributes) {
+  function updateOrCreate(slug, attributes) {
     let page = pages.find((page) => {
       return page.slug === slug || page.aliases.includes(slug);
     });
@@ -34,12 +32,12 @@ function parse(files) {
     return page;
   }
 
-  files
-    .map(({ filename, contents }) => {
-      const { content, data } = matter(contents);
+  rawPages
+    .map((raw) => {
+      const { content, data } = matter(raw.content);
 
-      return updateOrCreatePage(filename, {
-        title: data.title || filename,
+      return updateOrCreate(raw.slug, {
+        title: data.title || raw.slug,
         content: content,
         pin: data.pin || false,
         weight: data.weight || null,
@@ -48,7 +46,7 @@ function parse(files) {
     })
     .forEach((page) => {
       extractReferences(page.content).forEach((reference) => {
-        updateOrCreatePage(reference.slug, {
+        updateOrCreate(reference.slug, {
           title: reference.title,
         }).references.push({
           title: page.title,
@@ -62,20 +60,19 @@ function parse(files) {
   return pages;
 }
 
-function slug(string) {
-  return slugify(string, { decamelize: false });
-}
-
 function extractReferences(content) {
-  const tokens = markdownIt.parse(content, {});
+  const blocks = extractMarkdownBlocks(content);
   const references = [];
 
-  tokens.forEach((token) => {
-    [...token.content.matchAll(/\[\[([^\]]+)\]\]/g)].forEach((result) => {
+  blocks.forEach((block) => {
+    [...block.matchAll(/\[\[([^\]]+)\]\]/g)].forEach((result) => {
+      const slug = toSlug(result[1]);
+
       references.push({
         title: result[1],
-        slug: slug(result[1]),
-        content: token.content,
+        slug,
+        url: toUrl(slug),
+        content: block,
       });
     });
   });
@@ -84,4 +81,3 @@ function extractReferences(content) {
 }
 
 module.exports.parse = parse;
-module.exports.slug = slug;

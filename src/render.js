@@ -1,8 +1,6 @@
-const path = require("path");
-const { slug } = require("./parse");
-const markdownIt = require("markdown-it")({ html: true });
-const nunjucks = require("nunjucks");
-const { orderBy } = require("lodash");
+import path from "path";
+import nunjucks from "nunjucks";
+import { markdown } from "./util";
 
 const renderer = new nunjucks.Environment(
   new nunjucks.FileSystemLoader([
@@ -13,26 +11,6 @@ const renderer = new nunjucks.Environment(
 
 renderer.addFilter("markdown", markdown);
 
-function render(page, pages) {
-  const index = pages.find((page) => page.slug === "index");
-  const title = index ? index.title : "Intertwine";
-  const sidebar = orderBy(
-    pages.filter((page) => page.pin),
-    ["weight", "title"]
-  );
-
-  return renderer.render("page.html", {
-    page,
-    site: { pages, sidebar, title },
-  });
+export function render(page, site) {
+  return renderer.render("page.html", { page, site });
 }
-
-function markdown(input) {
-  input = input.replace(/\[\[([^\]]+)\]\]/g, (_, contents) => {
-    return `<a href="/${slug(contents)}" class="reference">${contents}</a>`;
-  });
-
-  return markdownIt.render(input);
-}
-
-module.exports.render = render;
