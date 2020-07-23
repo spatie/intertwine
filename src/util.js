@@ -1,3 +1,4 @@
+const { pages } = require("./pages");
 const MarkdownIt = require("markdown-it");
 const { debounce, orderBy } = require("lodash");
 const slugify = require("@sindresorhus/slugify");
@@ -10,7 +11,7 @@ const markdownIt = MarkdownIt({ html: true });
 
 function markdown(input) {
   input = input.replace(/\[\[([^\]]+)\]\]/g, (_, content) => {
-    return `<a href="/${toSlug(content)}" class="reference">${content}</a>`;
+    return `<a href="/${toUrl(content)}" class="reference">${content}</a>`;
   });
 
   return markdownIt.render(input);
@@ -25,7 +26,19 @@ function toSlug(string) {
 }
 
 function toUrl(slug) {
-  return slug === "index" ? "/" : `/${slug}`;
+  if (slug === "index") {
+    return "/";
+  }
+
+  const alias = pages.find((page) => {
+    return page.aliases.includes(slug);
+  });
+
+  if (alias) {
+    return slug === "index" ? "/" : `${alias.slug}`;
+  }
+
+  return `/${slug}`;
 }
 
 async function perf(callback) {

@@ -1,36 +1,9 @@
+const { pages } = require("./pages");
 const matter = require("gray-matter");
-const { arrayWrap, extractMarkdownBlocks, toSlug, toUrl } = require("./util");
+const { arrayWrap, extractMarkdownBlocks, toSlug } = require("./util");
 
 function parse(rawPages) {
-  const pages = [];
-
-  function updateOrCreate(slug, attributes) {
-    let page = pages.find((page) => {
-      return page.slug === slug || page.aliases.includes(slug);
-    });
-
-    if (page) {
-      Object.assign(page, attributes);
-
-      return page;
-    }
-
-    page = {
-      title: slug,
-      content: "",
-      slug,
-      url: slug === "index" ? "/" : `/${slug}`,
-      pin: false,
-      weight: null,
-      aliases: [],
-      references: [],
-      ...attributes,
-    };
-
-    pages.push(page);
-
-    return page;
-  }
+  pages.length = 0;
 
   rawPages
     .map((raw) => {
@@ -51,13 +24,39 @@ function parse(rawPages) {
         }).references.push({
           title: page.title,
           slug: page.slug,
-          url: page.slug === "index" ? "/" : `/${page.slug}`,
           content: reference.content,
         });
       });
     });
 
   return pages;
+}
+
+function updateOrCreate(slug, attributes) {
+  let page = pages.find((page) => {
+    return page.slug === slug || page.aliases.includes(slug);
+  });
+
+  if (page) {
+    Object.assign(page, attributes);
+
+    return page;
+  }
+
+  page = {
+    title: slug,
+    content: "",
+    slug,
+    pin: false,
+    weight: null,
+    aliases: [],
+    references: [],
+    ...attributes,
+  };
+
+  pages.push(page);
+
+  return page;
 }
 
 function extractReferences(content) {
@@ -71,7 +70,6 @@ function extractReferences(content) {
       references.push({
         title: result[1],
         slug,
-        url: toUrl(slug),
         content: block,
       });
     });

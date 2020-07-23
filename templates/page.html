@@ -16,7 +16,7 @@
       <ul>
         {% for page in site.sidebar %}
           <li>
-            <a href="{{ page.url }}">
+            <a href="{{ page.slug | url }}">
               {{ page.title }}
             </a>
           </li>
@@ -39,7 +39,7 @@
             <ul>
               {% for reference in page.references %}
                 <li>
-                  <a href="{{ reference.url }}">
+                  <a href="{{ reference.slug | url }}">
                     {{ reference.title }}
                   </a>
                   <ul>
