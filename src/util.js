@@ -11,7 +11,9 @@ const markdownIt = MarkdownIt({ html: true });
 
 function markdown(input) {
   input = input.replace(/\[\[([^\]]+)\]\]/g, (_, content) => {
-    return `<a href="/${toUrl(content)}" class="reference">${content}</a>`;
+    const url = toUrl(toSlug(content));
+
+    return `<a href="${url}" class="reference">${content}</a>`;
   });
 
   return markdownIt.render(input);
@@ -35,7 +37,7 @@ function toUrl(slug) {
   });
 
   if (alias) {
-    return slug === "index" ? "/" : `${alias.slug}`;
+    return slug === "index" ? "/" : `/${alias.slug}`;
   }
 
   return `/${slug}`;
