@@ -28,10 +28,21 @@ function toUrl(slug) {
   return slug === "index" ? "/" : `/${slug}`;
 }
 
+async function perf(callback) {
+  const hrstart = process.hrtime();
+
+  await callback();
+
+  const hrend = process.hrtime(hrstart);
+
+  return Math.round(hrend[0] * 1000 + hrend[1] / 1000000);
+}
+
 module.exports.arrayWrap = arrayWrap;
 module.exports.debounce = debounce;
 module.exports.extractMarkdownBlocks = extractMarkdownBlocks;
 module.exports.markdown = markdown;
+module.exports.perf = perf;
 module.exports.orderBy = orderBy;
 module.exports.toSlug = toSlug;
 module.exports.toUrl = toUrl;

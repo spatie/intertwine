@@ -32,7 +32,7 @@ async function find(directory = ".") {
   return Array.prototype.concat(...paths);
 }
 
-async function freshDir(directory) {
+async function freshDirectory(directory) {
   await new Promise((resolve) => rimraf(directory, resolve));
 
   await fs.mkdir(directory);
@@ -60,8 +60,19 @@ async function ensureDirectoryExists(filePath) {
   });
 }
 
+async function directoryExists(filePath) {
+  let exists = true;
+
+  await fs.stat(filePath).catch(() => {
+    exists = false;
+  });
+
+  return exists;
+}
+
 module.exports.copy = copy;
-module.exports.find = find;
-module.exports.freshDir = freshDir;
-module.exports.write = write;
+module.exports.directoryExists = directoryExists;
 module.exports.ensureDirectoryExists = ensureDirectoryExists;
+module.exports.find = find;
+module.exports.freshDirectory = freshDirectory;
+module.exports.write = write;

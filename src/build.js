@@ -1,15 +1,25 @@
-const { freshDir, copy, find, write } = require("./file");
+const {
+  copy,
+  directoryExists,
+  find,
+  freshDirectory,
+  write,
+} = require("./file");
 const { parse } = require("./parse");
 const { render } = require("./render");
 const { orderBy } = require("./util");
 
 async function build() {
-  await freshDir("./public");
+  await freshDirectory("./public");
 
   await Promise.all([buildPages(), buildAssets()]);
 }
 
-function buildAssets() {
+async function buildAssets() {
+  if (!(await directoryExists("./assets"))) {
+    return;
+  }
+
   return copy("./assets", "./public/assets");
 }
 

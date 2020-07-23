@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { debounce } = require("./util");
+const { debounce, perf } = require("./util");
 const { build, buildAssets, buildPages } = require("./build");
 
 (function () {
@@ -16,48 +16,59 @@ const { build, buildAssets, buildPages } = require("./build");
       watch();
       break;
     default:
-      console.error(`Unknown command: ${process.argv[2]}`);
+      error(`Unknown command: ${process.argv[2]}`);
   }
 })();
+
+const bs = require("browser-sync").create();
 
 async function watch() {
   await build();
 
-  const chokidar = require("chokidar");
+  bs.watch(
+    "pages",
+    debounce(async (event) => {
+      const time = await perf(buildPages);
 
-  chokidar.watch("./pages").on(
-    "all",
-    debounce(async () => {
-      await buildPages();
-      console.log("Updated pages");
+      if (event !== "add") {
+        info(`Pages built in ${time}ms`);
+      }
     }, 100)
   );
 
-  chokidar.watch("./assets").on(
-    "all",
-    debounce(async () => {
-      await buildAssets();
-      console.log("Updated assets");
+  bs.watch(
+    "assets",
+    debounce(async (event) => {
+      const time = await perf(buildAssets);
+
+      if (event !== "add") {
+        info(`Assets copied in ${time}ms`);
+      }
     }, 100)
   );
 
-  console.log("Watching for changes…");
+  info("Listening for changes…");
 }
 
 async function serve() {
   await watch();
 
-  const browserSync = require("browser-sync");
-
-  browserSync.create().init({
-    server: {
-      baseDir: "public",
-    },
-    port: 8080,
-    ignore: ["node_modules"],
-    watch: true,
+  bs.init({
+    server: "public",
+    files: "public/**/*",
     open: false,
+    watch: true,
     notify: false,
-    index: "index.html",
+    logLevel: "silent",
   });
+
+  info("Server is available at http://localhost:3000…");
+}
+
+function error(error) {
+  console.log(`\x1b[37m\x1b[41m[Intertwine]\x1b[0m ${error}`);
+}
+
+function info(info) {
+  console.log(`\x1b[35m[Intertwine]\x1b[0m ${info}`);
 }
