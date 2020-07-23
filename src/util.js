@@ -24,7 +24,10 @@ function extractMarkdownBlocks(input) {
 }
 
 function toSlug(string) {
-  return slugify(string, { decamelize: false });
+  return slugify(string, {
+    decamelize: false,
+    customReplacements: [["&", ""]],
+  });
 }
 
 function toUrl(slug) {
